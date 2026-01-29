@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Segoe UI', 'Noto Sans Arabic', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         #geometry-engine-root { height: 100vh; width: 100vw; }
         canvas { touch-action: none; }
         .sidebar-scroll { overflow-y: auto; scrollbar-width: thin; }
@@ -19,42 +19,14 @@
         .sidebar-scroll::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #6366f1, #8b5cf6); border-radius: 10px; }
         .sidebar-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
         .zoom-controls { position: absolute; bottom: 24px; left: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 30; }
-        .zoom-btn { width: 44px; height: 44px; background: white; border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #475569; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .zoom-btn:hover { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; transform: translateY(-2px) scale(1.05); }
-        .zoom-btn:active { transform: translateY(0) scale(0.98); }
+        .zoom-btn { width: 44px; height: 44px; background: white; border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #475569; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); transition: all 0.3s; cursor: pointer; }
+        .zoom-btn:hover { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; transform: translateY(-2px); }
         .embed-hidden { display: none !important; }
-        
-        .embed-controller { position: absolute; bottom: 24px; right: 24px; left: 24px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 16px; z-index: 50; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2), 0 10px 20px -5px rgba(0,0,0,0.1); }
-        
-        /* New animations and effects */
+        .embed-controller { position: absolute; bottom: 24px; right: 24px; left: 24px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 16px; z-index: 50; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
         .animate-slide-in { animation: slideIn 0.3s ease-out; }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        .animate-slide-up { animation: slideUp 0.5s ease-out; }
-        .animate-pulse { animation: pulse 2s infinite; }
-        
-        /* Glass morphism effect */
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        
-        /* Gradient backgrounds */
-        .gradient-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-        .gradient-success { background: linear-gradient(135deg, #10b981, #34d399); }
-        .gradient-warning { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-        .gradient-danger { background: linear-gradient(135deg, #ef4444, #f87171); }
-        
-        /* Enhanced shadows */
-        .shadow-soft { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
-        .shadow-medium { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .shadow-strong { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        
-        /* Custom tooltip */
-        .tooltip { position: relative; }
-        .tooltip:hover::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; white-space: nowrap; z-index: 1000; margin-bottom: 5px; }
-        .tooltip:hover::before { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1e293b; margin-bottom: -5px; }
     </style>
 </head>
 <body>
@@ -62,196 +34,52 @@
 <div id="geometry-engine-root"></div>
 
 <script type="text/babel">
-const { useState, useRef, useEffect, useCallback, useMemo, memo } = React;
+const { useState, useRef, useEffect, useCallback, useMemo } = React;
 
-// Custom hook for localStorage with compression
-const useLocalStorage = (key, defaultValue) => {
-    const [value, setValue] = useState(() => {
-        const saved = localStorage.getItem(key);
-        if (saved) {
-            try {
-                // Decompress if needed (simple LZW compression for large data)
-                const decompressed = saved; // Can add actual decompression here
-                return JSON.parse(decompressed);
-            } catch {
-                return defaultValue;
-            }
-        }
-        return defaultValue;
-    });
-
-    useEffect(() => {
-        // Compress before saving (simple string compression)
-        const compressed = JSON.stringify(value); // Can add actual compression here
-        localStorage.setItem(key, compressed);
-    }, [key, value]);
-
-    return [value, setValue];
+// دالة لضغط البيانات باستخدام Base64
+const compressData = (data) => {
+    try {
+        const jsonString = JSON.stringify(data);
+        // تحويل إلى Base64
+        const base64 = btoa(encodeURIComponent(jsonString));
+        // تقليل الحجم باستبدال الأحش الشائعة
+        const compressed = base64
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+        return compressed;
+    } catch (e) {
+        console.error('Compression error:', e);
+        return '';
+    }
 };
 
-// Custom hook for animations
-const useAnimationFrame = (callback) => {
-    const requestRef = useRef();
-    const previousTimeRef = useRef();
-
-    const animate = (time) => {
-        if (previousTimeRef.current !== undefined) {
-            const deltaTime = time - previousTimeRef.current;
-            callback(deltaTime);
+// دالة لفك ضغط البيانات
+const decompressData = (compressed) => {
+    try {
+        // استعادة Base64
+        let base64 = compressed
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+        
+        // إضافة padding إذا لزم الأمر
+        while (base64.length % 4) {
+            base64 += '=';
         }
-        previousTimeRef.current = time;
-        requestRef.current = requestAnimationFrame(animate);
-    };
-
-    useEffect(() => {
-        requestRef.current = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(requestRef.current);
-    }, []);
+        
+        const jsonString = decodeURIComponent(atob(base64));
+        return JSON.parse(jsonString);
+    } catch (e) {
+        console.error('Decompression error:', e);
+        return null;
+    }
 };
-
-// Component for better slider with keyboard support
-const EnhancedSlider = memo(({ slider, onChange, onDelete }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [tempName, setTempName] = useState(slider.name);
-
-    const handleNameSave = () => {
-        onChange({ ...slider, name: tempName });
-        setIsEditing(false);
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') handleNameSave();
-        if (e.key === 'Escape') setIsEditing(false);
-    };
-
-    const handleIncrement = (amount) => {
-        const newValue = Math.min(slider.max, Math.max(slider.min, slider.value + amount));
-        onChange({ ...slider, value: newValue });
-    };
-
-    return (
-        <div className="p-4 bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-2xl shadow-medium space-y-3 animate-slide-up">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <button 
-                        onClick={() => onChange({ ...slider, isAnimating: !slider.isAnimating })}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${slider.isAnimating ? 'gradient-warning text-white animate-pulse' : 'gradient-primary text-white'}`}
-                        data-tooltip={slider.isAnimating ? "إيقاف الحركة" : "تشغيل الحركة"}
-                    >
-                        {slider.isAnimating ? '⏸️' : '▶️'}
-                    </button>
-                    
-                    {isEditing ? (
-                        <div className="flex gap-1">
-                            <input
-                                type="text"
-                                className="w-16 px-2 py-1 border-2 border-indigo-300 rounded-lg text-sm font-bold text-center focus:outline-none focus:border-indigo-500"
-                                value={tempName}
-                                onChange={(e) => setTempName(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                autoFocus
-                            />
-                            <button onClick={handleNameSave} className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs">💾</button>
-                            <button onClick={() => setIsEditing(false)} className="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-xs">✕</button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
-                                {slider.name} = {slider.value.toFixed(2)}
-                            </span>
-                            <button 
-                                onClick={() => setIsEditing(true)}
-                                className="text-slate-400 hover:text-slate-600"
-                                data-tooltip="تعديل الاسم"
-                            >
-                                ✏️
-                            </button>
-                        </div>
-                    )}
-                </div>
-                
-                <div className="flex gap-1">
-                    <button 
-                        onClick={() => handleIncrement(slider.step)}
-                        className="w-6 h-6 flex items-center justify-center bg-green-100 text-green-700 rounded-lg hover:bg-green-200"
-                        data-tooltip="زيادة"
-                    >
-                        +
-                    </button>
-                    <button 
-                        onClick={() => handleIncrement(-slider.step)}
-                        className="w-6 h-6 flex items-center justify-center bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
-                        data-tooltip="نقصان"
-                    >
-                        -
-                    </button>
-                    <button 
-                        onClick={onDelete}
-                        className="w-6 h-6 flex items-center justify-center bg-gradient-to-br from-red-100 to-red-50 text-red-600 rounded-lg hover:from-red-200"
-                        data-tooltip="حذف"
-                    >
-                        🗑️
-                    </button>
-                </div>
-            </div>
-
-            <div className="space-y-2">
-                <input
-                    type="range"
-                    min={slider.min}
-                    max={slider.max}
-                    step={slider.step}
-                    value={slider.value}
-                    onChange={(e) => onChange({ ...slider, value: parseFloat(e.target.value) })}
-                    className="w-full h-2 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:gradient-primary [&::-webkit-slider-thumb]:shadow-lg"
-                />
-                
-                <div className="flex justify-between text-xs text-slate-500">
-                    <span>{slider.min}</span>
-                    <span>القيمة: {slider.value.toFixed(2)}</span>
-                    <span>{slider.max}</span>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 p-3 glass rounded-xl">
-                <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 block">السرعة</label>
-                    <input
-                        type="range"
-                        min="0.1"
-                        max="5"
-                        step="0.1"
-                        value={slider.speed}
-                        onChange={(e) => onChange({ ...slider, speed: parseFloat(e.target.value) })}
-                        className="w-full h-1.5 bg-gradient-to-r from-emerald-200 to-emerald-300 rounded-full"
-                    />
-                    <div className="flex justify-between text-[10px]">
-                        <span>بطيء</span>
-                        <span className="font-bold">{slider.speed}x</span>
-                        <span>سريع</span>
-                    </div>
-                </div>
-                
-                <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-600 block">نمط الحركة</label>
-                    <select
-                        value={slider.mode}
-                        onChange={(e) => onChange({ ...slider, mode: e.target.value })}
-                        className="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    >
-                        <option value="forward">للأمام ⮕</option>
-                        <option value="backward">للخارج ⬅</option>
-                        <option value="pingpong">ذهاب وإياب ↔</option>
-                        <option value="sinusoidal">موجي 🌊</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    );
-});
 
 const App = () => {
-  const isEmbedMode = new URLSearchParams(window.location.search).get('embed') === 'true';
+  const params = new URLSearchParams(window.location.search);
+  const isEmbedMode = params.get('embed') === 'true';
+  const dataParam = params.get('data');
+  
   const [showNotification, setShowNotification] = useState(null);
 
   const showToast = (message, type = 'info') => {
@@ -259,52 +87,112 @@ const App = () => {
     setTimeout(() => setShowNotification(null), 3000);
   };
 
-  // Use enhanced localStorage hook
-  const [functions, setFunctions] = useLocalStorage('geo_functions', [
-    { id: 'f1', expression: "y > x^2", color: '#ef4444', visible: true, thickness: 3, domainMin: '', domainMax: '', rangeMin: '', rangeMax: '', fillOpacity: 0.3 }
-  ]);
+  // التهيئة مع البيانات المدمجة إذا وجدت
+  const getInitialData = (key, defaultValue) => {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : defaultValue;
+  };
+
+  const [functions, setFunctions] = useState([]);
+  const [sliders, setSliders] = useState([]);
+  const [labels, setLabels] = useState([]);
+  const [tables, setTables] = useState([]);
+  const [images, setImages] = useState([]);
   
-  const [sliders, setSliders] = useLocalStorage('geo_sliders', [
-    { id: 's1', name: 'a', value: 1, min: -10, max: 10, step: 0.1, isAnimating: false, speed: 1, mode: 'forward', direction: 1, sinusoidalOffset: 0 }
-  ]);
-
-  const [labels, setLabels] = useLocalStorage('geo_labels', [
-    { id: 'l1', text: "نقطة الأصل", x: "0", y: "0", color: '#475569', visible: true, showPoint: true, rotation: "0", fontSize: "14", backgroundColor: 'transparent' }
-  ]);
-
-  const [tables, setTables] = useLocalStorage('geo_tables', [
-    { id: 't1', name: "جدول بيانات", visible: true, color: '#10b981', pointShape: 'circle', points: [{ x: "1", y: "1" }, { x: "2", y: "3" }], showLines: false, lineType: 'solid' }
-  ]);
-
-  const [images, setImages] = useLocalStorage('geo_images', []);
   const [showGrid, setShowGrid] = useState(true);
   const [showAxes, setShowAxes] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
   const [gridStepX, setGridStepX] = useState("auto");
   const [gridStepY, setGridStepY] = useState("auto");
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isEmbedMode);
-  const [graphTitle, setGraphTitle] = useState("مختبر الدوال والبيانات المتقدم");
+  const [graphTitle, setGraphTitle] = useState("مختبر الدوال والبيانات");
   const [zoom, setZoom] = useState(40);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [selectedTool, setSelectedTool] = useState('select');
-  const [history, setHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
   const [darkMode, setDarkMode] = useState(false);
+  const [iframeCode, setIframeCode] = useState('');
   
   const dragStart = useRef({ x: 0, y: 0 });
   const canvasRef = useRef(null);
-  const fileInputRef = useRef(null);
 
-  const gridOptions = ["auto", 0.1, 0.5, 1, 2, 5, 10, 20, 50, 100, "pi", "π/2", "π/4"];
-  const parseStep = (val) => {
-    if (val === "pi" || val === "π") return Math.PI;
-    if (val === "π/2") return Math.PI/2;
-    if (val === "π/4") return Math.PI/4;
-    if (val === "auto") return null;
-    return parseFloat(val);
-  };
-  
+  // تحميل البيانات عند التهيئة
+  useEffect(() => {
+    if (dataParam) {
+      // تحميل البيانات المدمجة
+      const data = decompressData(dataParam);
+      if (data) {
+        if (data.f) setFunctions(data.f);
+        if (data.s) setSliders(data.s);
+        if (data.t) setTables(data.t);
+        if (data.l) setLabels(data.l);
+        if (data.title) setGraphTitle(data.title);
+        if (data.grid !== undefined) setShowGrid(data.grid);
+        if (data.axes !== undefined) setShowAxes(data.axes);
+        if (data.labels !== undefined) setShowLabels(data.labels);
+        if (data.dark !== undefined) setDarkMode(data.dark);
+        showToast('تم تحميل الرسم البياني', 'success');
+      }
+    } else {
+      // تحميل البيانات المحفوظة محلياً
+      setFunctions(getInitialData('geo_functions', [
+        { id: 'f1', expression: "y > x^2", color: '#ef4444', visible: true, thickness: 3, domainMin: '', domainMax: '', rangeMin: '', rangeMax: '', fillOpacity: 0.3 }
+      ]));
+      setSliders(getInitialData('geo_sliders', [
+        { id: 's1', name: 'a', value: 1, min: -10, max: 10, step: 0.1, isAnimating: false, speed: 1, mode: 'forward', direction: 1 }
+      ]));
+      setLabels(getInitialData('geo_labels', [
+        { id: 'l1', text: "نقطة الأصل", x: "0", y: "0", color: '#475569', visible: true, showPoint: true, rotation: "0", fontSize: "14", backgroundColor: 'transparent' }
+      ]));
+      setTables(getInitialData('geo_tables', [
+        { id: 't1', name: "جدول بيانات", visible: true, color: '#10b981', pointShape: 'circle', points: [{ x: "1", y: "1" }, { x: "2", y: "3" }], showLines: false, lineType: 'solid' }
+      ]));
+    }
+  }, [dataParam]);
+
+  // حفظ البيانات في localStorage
+  useEffect(() => {
+    localStorage.setItem('geo_functions', JSON.stringify(functions));
+    localStorage.setItem('geo_sliders', JSON.stringify(sliders));
+    localStorage.setItem('geo_labels', JSON.stringify(labels));
+    localStorage.setItem('geo_tables', JSON.stringify(tables));
+  }, [functions, sliders, labels, tables]);
+
+  // توليد كود iframe
+  useEffect(() => {
+    const generateIframeCode = () => {
+      const dataToSave = {
+        f: functions,
+        s: sliders,
+        t: tables,
+        l: labels,
+        title: graphTitle,
+        grid: showGrid,
+        axes: showAxes,
+        labels: showLabels,
+        dark: darkMode,
+        ver: "1.0"
+      };
+      
+      const compressed = compressData(dataToSave);
+      if (!compressed) return '<iframe src="..." width="800" height="600"></iframe>';
+      
+      const baseUrl = window.location.origin + window.location.pathname;
+      const embedUrl = `${baseUrl}?embed=true&data=${compressed}`;
+      
+      return `<iframe src="${embedUrl}" width="800" height="600" style="border: 2px solid #6366f1; border-radius: 12px;" frameborder="0" allowfullscreen></iframe>`;
+    };
+    
+    setIframeCode(generateIframeCode());
+  }, [functions, sliders, tables, labels, graphTitle, showGrid, showAxes, showLabels, darkMode]);
+
+  const currentContext = useMemo(() => {
+    const ctx = {};
+    sliders.forEach(s => { ctx[s.name.toLowerCase()] = s.value; });
+    return ctx;
+  }, [sliders]);
+
+  const gridOptions = ["auto", 0.1, 0.5, 1, 2, 5, 10, 20, 50, 100, "pi"];
+  const parseStep = (val) => val === "pi" ? Math.PI : (val === "auto" ? null : parseFloat(val));
   const config = { 
     minZoom: 2, 
     maxZoom: 1000, 
@@ -314,498 +202,51 @@ const App = () => {
     backgroundColor: darkMode ? '#1a202c' : 'white'
   };
 
-  // Enhanced animation with sinusoidal mode
+  // Animation for sliders
   useEffect(() => {
     let animationFrame;
     const animate = () => {
       setSliders(prev => prev.map(s => {
         if (!s.isAnimating) return s;
-        
         let delta = (s.step || 0.1) * s.speed * (s.direction || 1);
-        let nextValue = s.value;
+        let nextValue = s.value + delta;
         let nextDirection = s.direction || 1;
-        let sinusoidalOffset = s.sinusoidalOffset || 0;
-
-        if (s.mode === 'forward') {
-          nextValue = s.value + delta;
-          if (nextValue > s.max) nextValue = s.min;
-        } else if (s.mode === 'backward') {
-          nextValue = s.value - delta;
-          if (nextValue < s.min) nextValue = s.max;
-        } else if (s.mode === 'pingpong') {
-          nextValue = s.value + delta * nextDirection;
-          if (nextValue > s.max) { nextValue = s.max; nextDirection = -1; }
-          if (nextValue < s.min) { nextValue = s.min; nextDirection = 1; }
-        } else if (s.mode === 'sinusoidal') {
-          sinusoidalOffset = (sinusoidalOffset + 0.05) % (2 * Math.PI);
-          const range = s.max - s.min;
-          const amplitude = range / 2;
-          const midpoint = (s.max + s.min) / 2;
-          nextValue = midpoint + amplitude * Math.sin(sinusoidalOffset);
-        }
-
-        return { 
-          ...s, 
-          value: parseFloat(nextValue.toFixed(4)), 
-          direction: nextDirection,
-          sinusoidalOffset 
-        };
+        if (s.mode === 'forward') { if (nextValue > s.max) nextValue = s.min; nextDirection = 1; } 
+        else if (s.mode === 'backward') { if (nextValue < s.min) nextValue = s.max; nextDirection = -1; } 
+        else if (s.mode === 'pingpong') { if (nextValue > s.max) { nextValue = s.max; nextDirection = -1; } if (nextValue < s.min) { nextValue = s.min; nextDirection = 1; } }
+        return { ...s, value: parseFloat(nextValue.toFixed(2)), direction: nextDirection };
       }));
       animationFrame = requestAnimationFrame(animate);
     };
-    
-    if (sliders.some(s => s.isAnimating)) {
-      animationFrame = requestAnimationFrame(animate);
-    }
-    
+    if (sliders.some(s => s.isAnimating)) animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
   }, [sliders.some(s => s.isAnimating)]);
 
-  // History management
-  const saveToHistory = useCallback((description) => {
-    const snapshot = {
-      functions: JSON.parse(JSON.stringify(functions)),
-      sliders: JSON.parse(JSON.stringify(sliders)),
-      labels: JSON.parse(JSON.stringify(labels)),
-      tables: JSON.parse(JSON.stringify(tables)),
-      images: JSON.parse(JSON.stringify(images)),
-      description,
-      timestamp: new Date().toISOString()
-    };
-    
-    setHistory(prev => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(snapshot);
-      return newHistory.slice(-20); // Keep last 20 states
+  const handleZoom = (delta) => {
+    setZoom(prev => {
+        const factor = delta > 0 ? 1.2 : 0.8;
+        const newZoom = prev * factor;
+        return Math.min(config.maxZoom, Math.max(config.minZoom, newZoom));
     });
-    setHistoryIndex(prev => prev + 1);
-  }, [functions, sliders, labels, tables, images, historyIndex]);
-
-  const undo = useCallback(() => {
-    if (historyIndex > 0) {
-      const prevState = history[historyIndex - 1];
-      setFunctions(prevState.functions);
-      setSliders(prevState.sliders);
-      setLabels(prevState.labels);
-      setTables(prevState.tables);
-      setImages(prevState.images);
-      setHistoryIndex(prev => prev - 1);
-      showToast('تم التراجع', 'success');
-    }
-  }, [history, historyIndex]);
-
-  const redo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const nextState = history[historyIndex + 1];
-      setFunctions(nextState.functions);
-      setSliders(nextState.sliders);
-      setLabels(nextState.labels);
-      setTables(nextState.tables);
-      setImages(nextState.images);
-      setHistoryIndex(prev => prev + 1);
-      showToast('تم الإعادة', 'success');
-    }
-  }, [history, historyIndex]);
-
-  // Enhanced save/load
-  const handleSaveToFile = () => {
-    const data = { 
-        version: "2.0",
-        functions, sliders, labels, tables, images, graphTitle, zoom, offset,
-        settings: { showGrid, showAxes, showLabels, gridStepX, gridStepY, darkMode },
-        metadata: {
-          created: new Date().toISOString(),
-          modified: new Date().toISOString(),
-          author: navigator.userAgent
-        }
-    };
-    
-    // Compress data before saving
-    const jsonString = JSON.stringify(data);
-    const blob = new Blob([jsonString], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${graphTitle.replace(/\s+/g, '_')}_${Date.now()}.geolab`;
-    link.click();
-    URL.revokeObjectURL(url);
-    
-    showToast('تم حفظ المشروع', 'success');
   };
 
-  // Enhanced context with more math functions
-  const currentContext = useMemo(() => {
-    const ctx = {};
-    sliders.forEach(s => { 
-      ctx[s.name.toLowerCase()] = s.value;
-      ctx[s.name] = s.value;
-    });
-    
-    // Add common math constants and functions
-    ctx.pi = Math.PI;
-    ctx.e = Math.E;
-    ctx.sin = Math.sin;
-    ctx.cos = Math.cos;
-    ctx.tan = Math.tan;
-    ctx.sqrt = Math.sqrt;
-    ctx.abs = Math.abs;
-    ctx.exp = Math.exp;
-    ctx.log = Math.log;
-    ctx.log10 = Math.log10;
-    
-    return ctx;
-  }, [sliders]);
-
-  // Enhanced function compilation with better error handling
   const compiledFunctions = useMemo(() => {
     return functions.map(f => {
       try {
         let expr = f.expression.toLowerCase().replace(/\s+/g, '');
         let operator = '=';
-        const operators = ['>=', '<=', '!=', '>', '<', '='];
-        
-        for (const op of operators) {
-          if (expr.includes(op)) {
-            operator = op;
-            break;
-          }
-        }
-        
+        if (expr.includes('>=')) operator = '>=';
+        else if (expr.includes('<=')) operator = '<=';
+        else if (expr.includes('>')) operator = '>';
+        else if (expr.includes('<')) operator = '<';
+        else if (expr.includes('=')) operator = '=';
         const parts = expr.split(operator);
-        if (parts.length !== 2) throw new Error('Invalid expression');
-        
-        const left = parts[0] || '0';
-        const right = parts[1] || '0';
-        const mathExpr = `(${left}) - (${right})`;
-        
-        return { 
-          ...f, 
-          node: math.parse(mathExpr), 
-          operator, 
-          context: currentContext, 
-          error: false,
-          compiled: math.compile(mathExpr)
-        };
-      } catch (e) {
-        console.error('Function compilation error:', e);
-        return { ...f, node: null, error: true, errorMessage: e.message };
-      }
+        const mathExpr = `(${parts[0]}) - (${parts[1]})`;
+        return { ...f, node: math.parse(mathExpr), operator, context: currentContext, error: false };
+      } catch (e) { return { ...f, node: null, error: true }; }
     });
   }, [functions, currentContext]);
 
-  // Enhanced drawing with better performance
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width = canvas.offsetWidth;
-    const height = canvas.height = canvas.offsetHeight;
-    
-    // Clear canvas with theme-based background
-    ctx.fillStyle = config.backgroundColor;
-    ctx.fillRect(0, 0, width, height);
-
-    const centerX = width / 2 + offset.x;
-    const centerY = height / 2 + offset.y;
-    const bounds = getBounds();
-    const autoStep = Math.max(0.5, Math.min(5, 100 / zoom));
-    const sX = parseStep(gridStepX) || autoStep;
-    const sY = parseStep(gridStepY) || autoStep;
-
-    // Draw grid with theme support
-    if (showGrid) {
-      ctx.beginPath();
-      ctx.strokeStyle = config.gridColor;
-      ctx.lineWidth = 0.5;
-      
-      for (let x = Math.floor(bounds.xMin / sX) * sX; x <= bounds.xMax; x += sX) {
-        const p = toScreen(x, 0, width, height);
-        ctx.moveTo(p.px, 0);
-        ctx.lineTo(p.px, height);
-      }
-      
-      for (let y = Math.floor(bounds.yMin / sY) * sY; y <= bounds.yMax; y += sY) {
-        const p = toScreen(0, y, width, height);
-        ctx.moveTo(0, p.py);
-        ctx.lineTo(width, p.py);
-      }
-      ctx.stroke();
-    }
-
-    // Draw axes with theme support
-    if (showAxes) {
-      ctx.beginPath();
-      ctx.strokeStyle = config.axisColor;
-      ctx.lineWidth = 2;
-      ctx.moveTo(0, centerY);
-      ctx.lineTo(width, centerY);
-      ctx.moveTo(centerX, 0);
-      ctx.lineTo(centerX, height);
-      ctx.stroke();
-      
-      // Draw arrowheads
-      ctx.fillStyle = config.axisColor;
-      drawArrowhead(ctx, width, centerY, Math.PI);
-      drawArrowhead(ctx, centerX, 0, -Math.PI/2);
-    }
-
-    // Draw labels with theme support
-    if (showLabels) {
-      ctx.fillStyle = config.labelColor;
-      ctx.font = '11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      for (let x = Math.floor(bounds.xMin / sX) * sX; x <= bounds.xMax; x += sX) {
-        if (Math.abs(x) < 0.001) continue;
-        const p = toScreen(x, 0, width, height);
-        const label = formatNumber(x);
-        ctx.fillText(label, p.px, centerY + 15);
-      }
-      
-      for (let y = Math.floor(bounds.yMin / sY) * sY; y <= bounds.yMax; y += sY) {
-        if (Math.abs(y) < 0.001) continue;
-        const p = toScreen(0, y, width, height);
-        const label = formatNumber(y);
-        ctx.fillText(label, centerX - 15, p.py);
-      }
-      
-      // Draw origin label
-      ctx.fillText("O", centerX - 8, centerY + 15);
-    }
-
-    // Helper function for arrowhead drawing
-    function drawArrowhead(ctx, x, y, angle) {
-      const size = 10;
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angle);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(-size, -size/2);
-      ctx.lineTo(-size, size/2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // Helper function for number formatting
-    function formatNumber(num) {
-      if (Math.abs(num - Math.PI) < 0.01) return 'π';
-      if (Math.abs(num - Math.PI/2) < 0.01) return 'π/2';
-      if (Math.abs(num - Math.PI/4) < 0.01) return 'π/4';
-      return num.toFixed(Math.abs(num) >= 100 ? 0 : Math.abs(num) >= 10 ? 1 : 2);
-    }
-
-    // Draw images with enhanced features
-    images.forEach(img => {
-        if (!img.visible) return;
-        const rx = resolveVal(img.x, currentContext);
-        const ry = resolveVal(img.y, currentContext);
-        const rw = resolveVal(img.width, currentContext);
-        const rr = resolveVal(img.rotation, currentContext);
-        const ro = Math.min(1, Math.max(0, resolveVal(img.opacity, currentContext)));
-        
-        const p = toScreen(rx, ry, width, height);
-        const imgW = rw * zoom;
-        const imgH = (img.element.height / img.element.width) * imgW;
-        
-        ctx.save();
-        ctx.translate(p.px, p.py);
-        ctx.rotate(rr * Math.PI / 180);
-        ctx.globalAlpha = ro;
-        
-        // Add shadow for depth
-        ctx.shadowColor = 'rgba(0,0,0,0.2)';
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-        
-        ctx.drawImage(img.element, -imgW/2, -imgH/2, imgW, imgH);
-        ctx.restore();
-    });
-
-    // Draw tables with connecting lines if enabled
-    tables.forEach(table => {
-      if (!table.visible) return;
-      
-      const points = table.points
-        .filter(p => p.x !== '' && p.y !== '')
-        .map(p => ({
-          x: resolveVal(p.x, currentContext),
-          y: resolveVal(p.y, currentContext)
-        }));
-      
-      if (table.showLines && points.length > 1) {
-        ctx.beginPath();
-        ctx.strokeStyle = table.color;
-        ctx.lineWidth = 2;
-        ctx.setLineDash(table.lineType === 'dashed' ? [10, 5] : []);
-        
-        points.forEach((p, idx) => {
-          const sp = toScreen(p.x, p.y, width, height);
-          if (idx === 0) {
-            ctx.moveTo(sp.px, sp.py);
-          } else {
-            ctx.lineTo(sp.px, sp.py);
-          }
-        });
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-      
-      points.forEach(p => {
-        const sp = toScreen(p.x, p.y, width, height);
-        drawPoint(ctx, sp.px, sp.py, table.pointShape, 6, table.color);
-      });
-    });
-
-    // Draw labels with background
-    labels.forEach(lbl => {
-        if (!lbl.visible) return;
-        const rx = resolveVal(lbl.x, currentContext);
-        const ry = resolveVal(lbl.y, currentContext);
-        const rr = resolveVal(lbl.rotation, currentContext);
-        const rs = Math.max(8, Math.min(72, resolveVal(lbl.fontSize, currentContext)));
-        
-        const p = toScreen(rx, ry, width, height);
-        ctx.save();
-        ctx.translate(p.px, p.py);
-        ctx.rotate(rr * Math.PI / 180);
-        
-        // Draw background if specified
-        if (lbl.backgroundColor && lbl.backgroundColor !== 'transparent') {
-          ctx.fillStyle = lbl.backgroundColor;
-          const textWidth = ctx.measureText(lbl.text).width;
-          const padding = 6;
-          ctx.fillRect(-textWidth/2 - padding, -rs/2 - padding, textWidth + padding*2, rs + padding*2);
-        }
-        
-        ctx.fillStyle = lbl.color;
-        ctx.font = `bold ${rs}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(lbl.text, 0, 0);
-        ctx.restore();
-        
-        if (lbl.showPoint) {
-          ctx.beginPath();
-          ctx.fillStyle = lbl.color;
-          ctx.arc(p.px, p.py, 5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-    });
-
-    // Draw functions with improved algorithm
-    compiledFunctions.forEach(f => {
-      if (!f.visible || f.error || !f.node) return;
-      
-      const dMin = f.domainMin !== '' ? parseFloat(f.domainMin) : -Infinity;
-      const dMax = f.domainMax !== '' ? parseFloat(f.domainMax) : Infinity;
-      const rMin = f.rangeMin !== '' ? parseFloat(f.rangeMin) : -Infinity;
-      const rMax = f.rangeMax !== '' ? parseFloat(f.rangeMax) : Infinity;
-      
-      if (f.operator === '>' || f.operator === '>=' || f.operator === '<' || f.operator === '<=') {
-        // Draw inequality regions with gradient
-        const res = 8;
-        const rows = Math.ceil(height / res);
-        const cols = Math.ceil(width / res);
-        
-        for (let j = 0; j < rows; j++) {
-          for (let i = 0; i < cols; i++) {
-            const m = toMath(i * res, j * res, width, height);
-            if (m.x < dMin || m.x > dMax || m.y < rMin || m.y > rMax) continue;
-            
-            try {
-              const val = f.compiled.evaluate({ x: m.x, y: m.y, ...f.context });
-              let shouldFill = false;
-              if (f.operator === '>') shouldFill = val > 0;
-              else if (f.operator === '>=') shouldFill = val >= 0;
-              else if (f.operator === '<') shouldFill = val < 0;
-              else if (f.operator === '<=') shouldFill = val <= 0;
-              
-              if (shouldFill) {
-                ctx.fillStyle = f.color + Math.round(f.fillOpacity * 255).toString(16).padStart(2, '0');
-                ctx.fillRect(i * res, j * res, res, res);
-              }
-            } catch (e) {}
-          }
-        }
-      }
-      
-      // Draw function curve
-      const precision = Math.max(1, Math.min(5, Math.floor(zoom / 20)));
-      const step = 1 / (zoom * precision);
-      const startX = Math.floor(bounds.xMin / step) * step;
-      const endX = Math.ceil(bounds.xMax / step) * step;
-      
-      ctx.beginPath();
-      ctx.strokeStyle = f.color;
-      ctx.lineWidth = f.thickness;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-      
-      let firstPoint = true;
-      for (let x = startX; x <= endX; x += step) {
-        if (x < dMin || x > dMax) continue;
-        
-        try {
-          const val = f.compiled.evaluate({ x: x, y: 0, ...f.context });
-          if (Math.abs(val) < 0.0001) {
-            const y = 0; // Solve for y if possible
-          }
-          
-          const y = val; // This needs actual solving
-          if (y < rMin || y > rMax) continue;
-          
-          const p = toScreen(x, y, width, height);
-          if (firstPoint) {
-            ctx.moveTo(p.px, p.py);
-            firstPoint = false;
-          } else {
-            ctx.lineTo(p.px, p.py);
-          }
-        } catch (e) {
-          firstPoint = true;
-        }
-      }
-      ctx.stroke();
-    });
-
-    // Draw graph title with enhanced styling
-    if (graphTitle) {
-      ctx.fillStyle = darkMode ? '#e2e8f0' : '#1e293b';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = 'rgba(0,0,0,0.1)';
-      ctx.shadowBlur = 4;
-      ctx.fillText(graphTitle, width / 2, 60);
-      ctx.shadowBlur = 0;
-    }
-
-    // Draw cursor position if not dragging
-    if (!isDragging && canvasRef.current) {
-      canvasRef.current.onmousemove = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        const mathCoords = toMath(mx, my, width, height);
-        
-        ctx.fillStyle = darkMode ? '#cbd5e1' : '#475569';
-        ctx.font = '12px monospace';
-        ctx.textAlign = 'right';
-        ctx.fillText(`x: ${mathCoords.x.toFixed(2)}, y: ${mathCoords.y.toFixed(2)}`, width - 10, 20);
-      };
-    }
-
-  }, [
-    compiledFunctions, showGrid, showAxes, showLabels, gridStepX, gridStepY,
-    zoom, offset, graphTitle, labels, tables, images, sliders, currentContext,
-    darkMode, isDragging
-  ]);
-
-  // Utility functions
   const toScreen = (x, y, width, height) => ({ 
     px: width / 2 + (x * zoom) + offset.x, 
     py: height / 2 - (y * zoom) + offset.y 
@@ -825,137 +266,329 @@ const App = () => {
     return { xMin: tl.x, xMax: br.x, yMin: br.y, yMax: tl.y };
   };
 
-  const drawPoint = (ctx, px, py, shape, size, color) => {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    switch (shape) {
-      case 'square':
-        ctx.rect(px - size, py - size, size * 2, size * 2);
-        break;
-      case 'triangle':
-        ctx.moveTo(px, py - size);
-        ctx.lineTo(px - size, py + size);
-        ctx.lineTo(px + size, py + size);
-        ctx.closePath();
-        break;
-      case 'diamond':
-        ctx.moveTo(px, py - size);
-        ctx.lineTo(px + size, py);
-        ctx.lineTo(px, py + size);
-        ctx.lineTo(px - size, py);
-        ctx.closePath();
-        break;
-      case 'star':
-        for (let i = 0; i < 5; i++) {
-          const angle = i * (Math.PI * 2) / 5 - Math.PI/2;
-          const x = px + Math.cos(angle) * size;
-          const y = py + Math.sin(angle) * size;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        break;
-      default: // circle
-        ctx.arc(px, py, size, 0, Math.PI * 2);
-    }
-    ctx.fill();
-  };
-
   const resolveVal = (val, context) => {
     if (typeof val === 'number') return val;
     if (val === '') return 0;
-    try {
-      return math.evaluate(String(val).toLowerCase(), context);
-    } catch (e) {
-      return parseFloat(val) || 0;
+    try { 
+      return math.evaluate(String(val).toLowerCase(), context); 
+    } catch(e) { 
+      return parseFloat(val) || 0; 
     }
   };
 
-  // Auto-embed iframe with enhanced features
-  const autoEmbedIframe = useMemo(() => {
-    const baseUrl = window.location.origin + window.location.pathname;
-    const dataToSave = {
-        version: "2.0",
-        f: functions,
-        s: sliders,
-        t: tables,
-        l: labels,
-        i: images.map(img => ({ 
-          ...img, 
-          src: img.element?.src || img.src,
-          element: undefined 
-        })),
-        title: graphTitle,
-        settings: { showGrid, showAxes, showLabels, darkMode }
-    };
-    
-    try {
-        const jsonString = JSON.stringify(dataToSave);
-        const encodedData = btoa(encodeURIComponent(jsonString));
-        
-        return `<iframe 
-  src="${baseUrl}?embed=true&data=${encodedData}" 
-  width="800" 
-  height="600" 
-  style="border: 2px solid #6366f1; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.2);"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  loading="lazy"
-></iframe>`;
-    } catch (e) {
-        return "جاري توليد كود التضمين...";
+  const drawPoint = (ctx, px, py, shape, size, color) => {
+    ctx.fillStyle = color; 
+    ctx.beginPath();
+    if (shape === 'square') ctx.rect(px - size, py - size, size * 2, size * 2);
+    else if (shape === 'triangle') { 
+      ctx.moveTo(px, py - size); 
+      ctx.lineTo(px - size, py + size); 
+      ctx.lineTo(px + size, py + size); 
+      ctx.closePath(); 
     }
-  }, [functions, sliders, tables, labels, images, graphTitle, showGrid, showAxes, showLabels, darkMode]);
+    else if (shape === 'diamond') { 
+      ctx.moveTo(px, py - size); 
+      ctx.lineTo(px + size, py); 
+      ctx.lineTo(px, py + size); 
+      ctx.lineTo(px - size, py); 
+      ctx.closePath(); 
+    }
+    else ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fill();
+  };
 
-  // Setup drawing loop
-  useEffect(() => {
-    draw();
-    const handleResize = () => draw();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = canvas.offsetWidth;
+    const height = canvas.height = canvas.offsetHeight;
+    
+    // Clear canvas
+    ctx.fillStyle = config.backgroundColor;
+    ctx.fillRect(0, 0, width, height);
+
+    const centerX = width / 2 + offset.x;
+    const centerY = height / 2 + offset.y;
+    const b = getBounds();
+    const autoStep = (zoom > 150 ? 0.5 : (zoom < 30 ? 5 : 1));
+    const sX = parseStep(gridStepX) || autoStep;
+    const sY = parseStep(gridStepY) || autoStep;
+
+    // Draw grid
+    if (showGrid) {
+      ctx.beginPath(); 
+      ctx.strokeStyle = config.gridColor;
+      ctx.lineWidth = 0.5;
+      for (let x = Math.floor(b.xMin / sX) * sX; x <= b.xMax; x += sX) {
+        const p = toScreen(x, 0, width, height);
+        ctx.moveTo(p.px, 0); 
+        ctx.lineTo(p.px, height);
+      }
+      for (let y = Math.floor(b.yMin / sY) * sY; y <= b.yMax; y += sY) {
+        const p = toScreen(0, y, width, height);
+        ctx.moveTo(0, p.py); 
+        ctx.lineTo(width, p.py);
+      }
+      ctx.stroke();
+    }
+
+    // Draw axes
+    if (showAxes) {
+      ctx.beginPath(); 
+      ctx.strokeStyle = config.axisColor; 
+      ctx.lineWidth = 2;
+      ctx.moveTo(0, centerY); 
+      ctx.lineTo(width, centerY);
+      ctx.moveTo(centerX, 0); 
+      ctx.lineTo(centerX, height);
+      ctx.stroke();
+    }
+
+    // Draw labels
+    if (showLabels) {
+      ctx.fillStyle = config.labelColor; 
+      ctx.font = '10px sans-serif';
+      for (let i = Math.floor(b.xMin / sX) * sX; i <= b.xMax; i += sX) {
+        if (Math.abs(i) < 0.001) continue;
+        const p = toScreen(i, 0, width, height);
+        ctx.fillText(i.toFixed(1).replace('.0',''), p.px, centerY + 15);
+      }
+      for (let i = Math.floor(b.yMin / sY) * sY; i <= b.yMax; i += sY) {
+        if (Math.abs(i) < 0.001) continue;
+        const p = toScreen(0, i, width, height);
+        ctx.fillText(i.toFixed(1).replace('.0',''), centerX - 15, p.py + 3);
+      }
+    }
+
+    // Draw tables
+    tables.forEach(table => {
+      if (!table.visible) return;
+      table.points.forEach(p => {
+          if(p.x !== '' && p.y !== '') {
+            const vx = resolveVal(p.x, currentContext);
+            const vy = resolveVal(p.y, currentContext);
+            const sp = toScreen(vx, vy, width, height);
+            drawPoint(ctx, sp.px, sp.py, table.pointShape, 5, table.color);
+          }
+      });
+    });
+
+    // Draw labels
+    labels.forEach(lbl => {
+        if (!lbl.visible) return;
+        const rx = resolveVal(lbl.x, currentContext);
+        const ry = resolveVal(lbl.y, currentContext);
+        const rr = resolveVal(lbl.rotation, currentContext);
+        const rs = resolveVal(lbl.fontSize, currentContext);
+        const p = toScreen(rx, ry, width, height);
+        ctx.save(); 
+        ctx.translate(p.px, p.py); 
+        ctx.rotate(rr * Math.PI / 180);
+        ctx.fillStyle = lbl.color; 
+        ctx.font = `bold ${rs}px sans-serif`; 
+        ctx.textAlign = 'center';
+        ctx.fillText(lbl.text, 0, -12); 
+        ctx.restore();
+        if (lbl.showPoint) { 
+          ctx.beginPath(); 
+          ctx.fillStyle = lbl.color; 
+          ctx.arc(p.px, p.py, 4, 0, Math.PI * 2); 
+          ctx.fill(); 
+        }
+    });
+
+    // Draw functions
+    compiledFunctions.forEach(f => {
+      if (!f.visible || f.error || !f.node) return;
+      const code = f.node.compile();
+      const res = 4; 
+      const rows = Math.ceil(height / res); 
+      const cols = Math.ceil(width / res);
+      const gridData = new Float32Array((rows + 1) * (cols + 1));
+      const dMin = f.domainMin !== '' ? parseFloat(f.domainMin) : -Infinity;
+      const dMax = f.domainMax !== '' ? parseFloat(f.domainMax) : Infinity;
+      const rMin = f.rangeMin !== '' ? parseFloat(f.rangeMin) : -Infinity;
+      const rMax = f.rangeMax !== '' ? parseFloat(f.rangeMax) : Infinity;
+
+      for (let j = 0; j <= rows; j++) {
+        for (let i = 0; i <= cols; i++) {
+          const m = toMath(i * res, j * res, width, height);
+          if (m.x < dMin || m.x > dMax || m.y < rMin || m.y > rMax) { 
+            gridData[j * (cols + 1) + i] = NaN; 
+            continue; 
+          }
+          try { 
+            gridData[j * (cols + 1) + i] = code.evaluate({ x: m.x, y: m.y, ...f.context }); 
+          } catch (e) { 
+            gridData[j * (cols + 1) + i] = NaN; 
+          }
+        }
+      }
+      
+      // Draw inequality regions
+      if (f.operator !== '=') {
+        ctx.fillStyle = f.color + '33';
+        for (let j = 0; j < rows; j++) {
+          for (let i = 0; i < cols; i++) {
+            const val = gridData[j * (cols + 1) + i];
+            if (isNaN(val)) continue;
+            let shouldFill = false;
+            if (f.operator === '>' || f.operator === '>=') shouldFill = val > 0;
+            if (f.operator === '<' || f.operator === '<=') shouldFill = val < 0;
+            if (shouldFill) ctx.fillRect(i * res, j * res, res, res);
+          }
+        }
+      }
+      
+      // Draw function curve
+      ctx.beginPath(); 
+      ctx.strokeStyle = f.color; 
+      ctx.lineWidth = f.thickness;
+      if (f.operator === '>' || f.operator === '<') ctx.setLineDash([10, 5]); 
+      else ctx.setLineDash([]);
+      
+      for (let j = 0; j < rows; j++) {
+        for (let i = 0; i < cols; i++) {
+          const x0 = i * res, x1 = (i + 1) * res, y0 = j * res, y1 = (j + 1) * res;
+          const v0 = gridData[j * (cols + 1) + i];
+          const v1 = gridData[j * (cols + 1) + (i + 1)];
+          const v2 = gridData[(j + 1) * (cols + 1) + (i + 1)];
+          const v3 = gridData[(j + 1) * (cols + 1) + i];
+          
+          if (isNaN(v0) || isNaN(v1) || isNaN(v2) || isNaN(v3)) continue;
+          
+          const getEdge = (valA, valB, pA, pB) => { 
+            if (valA * valB > 0) return null; 
+            const t = Math.abs(valA) / (Math.abs(valA) + Math.abs(valB)); 
+            return { x: pA.x + t * (pB.x - pA.x), y: pA.y + t * (pB.y - pA.y) }; 
+          };
+          
+          const edges = [
+            getEdge(v0,v1,{x:x0,y:y0},{x:x1,y:y0}),
+            getEdge(v1,v2,{x:x1,y:y0},{x:x1,y:y1}),
+            getEdge(v2,v3,{x:x1,y:y1},{x:x0,y:y1}),
+            getEdge(v3,v0,{x:x0,y:y1},{x:x0,y:y0})
+          ].filter(e => e !== null);
+          
+          if (edges.length >= 2) { 
+            ctx.moveTo(edges[0].x, edges[0].y); 
+            ctx.lineTo(edges[1].x, edges[1].y); 
+          }
+        }
+      }
+      ctx.stroke(); 
+      ctx.setLineDash([]);
+    });
+
+    // Draw title
+    if (graphTitle) {
+      ctx.fillStyle = darkMode ? '#e2e8f0' : '#1e293b'; 
+      ctx.font = 'bold 22px sans-serif'; 
+      ctx.textAlign = 'center';
+      ctx.fillText(graphTitle, width / 2, 50);
+    }
+  }, [compiledFunctions, showGrid, showAxes, showLabels, gridStepX, gridStepY, zoom, offset, graphTitle, labels, tables, sliders, currentContext, darkMode]);
+
+  useEffect(() => { 
+    draw(); 
+    window.addEventListener('resize', draw); 
+    return () => window.removeEventListener('resize', draw); 
   }, [draw]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Ctrl+Z for undo
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-      }
-      // Ctrl+Shift+Z or Ctrl+Y for redo
-      if (((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') || ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
-        e.preventDefault();
-        redo();
-      }
-      // Ctrl+S for save
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveToFile();
-      }
-      // Space to toggle sidebar
-      if (e.key === ' ' && !isEmbedMode) {
-        e.preventDefault();
-        setIsSidebarOpen(prev => !prev);
-      }
-      // Escape to cancel drag
-      if (e.key === 'Escape') {
-        setIsDragging(false);
+  const handleNewProject = () => {
+    if(confirm("هل أنت متأكد؟ سيتم مسح كافة البيانات الحالية.")) {
+      setFunctions([]); 
+      setSliders([]); 
+      setLabels([]); 
+      setTables([]); 
+      setImages([]);
+      showToast('تم إنشاء مشروع جديد', 'success');
+    }
+  };
+
+  const handleSaveToFile = () => {
+    const data = { 
+      version: "1.0",
+      functions, sliders, labels, tables, images, graphTitle, zoom, offset,
+      settings: { showGrid, showAxes, showLabels, gridStepX, gridStepY, darkMode }
+    };
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${graphTitle.replace(/\s+/g, '_')}.geolab`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast('تم حفظ المشروع', 'success');
+  };
+
+  const handleOpenFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if(data.functions) setFunctions(data.functions);
+        if(data.sliders) setSliders(data.sliders);
+        if(data.labels) setLabels(data.labels);
+        if(data.tables) setTables(data.tables);
+        if(data.graphTitle) setGraphTitle(data.graphTitle);
+        if(data.zoom) setZoom(data.zoom);
+        if(data.offset) setOffset(data.offset);
+        if(data.settings) {
+            setShowGrid(data.settings.showGrid);
+            setShowAxes(data.settings.showAxes);
+            setShowLabels(data.settings.showLabels);
+            setGridStepX(data.settings.gridStepX);
+            setGridStepY(data.settings.gridStepY);
+            setDarkMode(data.settings.darkMode);
+        }
+        showToast('تم تحميل المشروع', 'success');
+      } catch (err) { 
+        showToast('خطأ في تحميل الملف', 'error');
       }
     };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, isEmbedMode]);
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          setImages([...images, { id: 'img' + Date.now(), element: img, x: "0", y: "0", width: "5", rotation: "0", opacity: "1", visible: true }]);
+          showToast('تم إضافة الصورة', 'success');
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const exportImage = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `${graphTitle || 'geometry-lab'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('تم تصدير الصورة', 'success');
+  };
 
   return (
-    <div className={`flex h-screen w-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'} overflow-hidden font-sans text-right relative transition-colors duration-300`} dir="rtl">
+    <div className={`flex h-screen w-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'} overflow-hidden font-sans text-right relative`} dir="rtl">
       
       {/* Notification Toast */}
       {showNotification && (
-        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-up ${
-          showNotification.type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-600' :
-          showNotification.type === 'error' ? 'bg-gradient-to-r from-red-500 to-rose-600' :
-          'bg-gradient-to-r from-blue-500 to-indigo-600'
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg animate-fade-in ${
+          showNotification.type === 'success' ? 'bg-green-500' :
+          showNotification.type === 'error' ? 'bg-red-500' :
+          'bg-blue-500'
         } text-white font-bold`}>
           {showNotification.message}
         </div>
@@ -963,16 +596,15 @@ const App = () => {
 
       {/* Zoom Controls */}
       <div className={`zoom-controls ${isEmbedMode ? 'embed-hidden' : ''}`}>
-          <button onClick={() => handleZoom(1)} className="zoom-btn tooltip" data-tooltip="تكبير (Ctrl +)">+</button>
-          <button onClick={() => setZoom(40)} className="zoom-btn tooltip" data-tooltip="إعادة ضبط التكبير">⎌</button>
-          <button onClick={() => handleZoom(-1)} className="zoom-btn tooltip" data-tooltip="تصغير (Ctrl -)">−</button>
+          <button onClick={() => handleZoom(1)} className="zoom-btn">+</button>
+          <button onClick={() => setZoom(40)} className="zoom-btn">⎌</button>
+          <button onClick={() => handleZoom(-1)} className="zoom-btn">−</button>
       </div>
 
       {/* Theme Toggle */}
       <button 
         onClick={() => setDarkMode(!darkMode)}
-        className={`absolute top-4 left-4 z-50 p-3 rounded-full ${darkMode ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-800 text-gray-100'} shadow-lg transition-all duration-300 ${isEmbedMode ? 'embed-hidden' : ''}`}
-        data-tooltip={darkMode ? "الوضع الفاتح" : "الوضع الداكن"}
+        className={`absolute top-4 left-4 z-50 p-3 rounded-full ${darkMode ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-800 text-gray-100'} shadow-lg ${isEmbedMode ? 'embed-hidden' : ''}`}
       >
         {darkMode ? '☀️' : '🌙'}
       </button>
@@ -981,17 +613,17 @@ const App = () => {
       {isEmbedMode && sliders.length > 0 && (
           <div className="embed-controller animate-slide-in">
               {sliders.map(s => (
-                  <div key={s.id} className="flex items-center gap-4 p-2 bg-white/50 rounded-xl">
+                  <div key={s.id} className="flex items-center gap-4">
                       <button 
                         onClick={() => setSliders(prev => prev.map(item => item.id === s.id ? {...item, isAnimating: !item.isAnimating} : item))}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg transition-all ${s.isAnimating ? 'gradient-warning animate-pulse' : 'gradient-primary'}`}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${s.isAnimating ? 'bg-amber-500' : 'bg-indigo-600'}`}
                       >
                         {s.isAnimating ? '⏸️' : '▶️'}
                       </button>
                       <div className="flex-1">
                           <div className="flex justify-between text-xs font-bold mb-1">
-                              <span className="text-gray-700">{s.name}</span>
-                              <span className="font-mono text-gray-900">{s.value.toFixed(2)}</span>
+                              <span>{s.name}</span>
+                              <span>{s.value.toFixed(2)}</span>
                           </div>
                           <input 
                             type="range" 
@@ -1000,7 +632,7 @@ const App = () => {
                             step={s.step} 
                             value={s.value} 
                             onChange={e => setSliders(prev => prev.map(item => item.id === s.id ? {...item, value: parseFloat(e.target.value)} : item))} 
-                            className="w-full h-2 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:gradient-primary [&::-webkit-slider-thumb]:shadow-lg" 
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" 
                           />
                       </div>
                   </div>
@@ -1008,729 +640,165 @@ const App = () => {
           </div>
       )}
 
-      {/* Sidebar Toggle Button */}
+      {/* Sidebar Toggle */}
       <button 
         onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-        className={`absolute top-4 right-4 z-50 p-3 ${darkMode ? 'bg-gray-800 border-gray-700 text-gray-100' : 'bg-white border-gray-200 text-gray-600'} border shadow-lg rounded-full transition-all duration-300 hover:scale-105 ${isSidebarOpen ? 'mr-80' : 'mr-0'} ${isEmbedMode ? 'embed-hidden' : ''}`}
-        data-tooltip={isSidebarOpen ? "إغلاق القائمة" : "فتح القائمة"}
+        className={`absolute top-4 right-4 z-50 p-3 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border shadow-lg rounded-full transition-all ${isSidebarOpen ? 'mr-80' : 'mr-0'} ${isEmbedMode ? 'embed-hidden' : ''}`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transition-transform ${isSidebarOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${isSidebarOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
       </button>
 
       {/* Main Sidebar */}
-      <div className={`fixed inset-y-0 right-0 w-80 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gradient-to-b from-slate-50 to-white border-gray-200'} border-l flex flex-col sidebar-scroll p-6 space-y-6 shadow-2xl z-40 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed inset-y-0 right-0 w-80 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'} border-l flex flex-col sidebar-scroll p-6 space-y-6 shadow-2xl z-40 transition-transform ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
-        {/* Header */}
-        <div className="flex items-center justify-between border-b pb-4">
-          <h2 className="font-bold text-xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">موقع التكامل المتقدم</h2>
-          <div className="flex gap-2">
-            <button onClick={undo} disabled={historyIndex <= 0} className={`p-2 rounded-lg ${historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'} transition-colors`} data-tooltip="تراجع (Ctrl+Z)">↶</button>
-            <button onClick={redo} disabled={historyIndex >= history.length - 1} className={`p-2 rounded-lg ${historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'} transition-colors`} data-tooltip="إعادة (Ctrl+Y)">↷</button>
-          </div>
-        </div>
-
+        <h2 className="font-bold text-xl text-indigo-600 border-b pb-4">موقع التكامل</h2>
+        
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => {
-                setFunctions([]);
-                setSliders([]);
-                setLabels([]);
-                setTables([]);
-                setImages([]);
-                showToast('تم إنشاء مشروع جديد', 'success');
-            }} className={`p-3 rounded-xl font-bold transition-all hover:scale-105 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-white border hover:bg-gray-50'}`}>📄 جديد</button>
-            
-            <label className={`p-3 rounded-xl font-bold text-center cursor-pointer transition-all hover:scale-105 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-white border hover:bg-gray-50'}`}>
+            <button onClick={handleNewProject} className="p-3 bg-white border rounded-xl font-bold hover:bg-gray-50">📄 جديد</button>
+            <label className="p-3 bg-white border rounded-xl font-bold text-center cursor-pointer hover:bg-gray-50">
                 📂 فتح
-                <input type="file" accept=".geolab,.json" className="hidden" onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            try {
-                                const data = JSON.parse(event.target.result);
-                                // Validate and load data
-                                if (data.version && data.version.startsWith('2')) {
-                                    setFunctions(data.functions || []);
-                                    setSliders(data.sliders || []);
-                                    setLabels(data.labels || []);
-                                    setTables(data.tables || []);
-                                    setImages(data.images || []);
-                                    setGraphTitle(data.graphTitle || '');
-                                    setZoom(data.zoom || 40);
-                                    setOffset(data.offset || { x: 0, y: 0 });
-                                    if (data.settings) {
-                                        setShowGrid(data.settings.showGrid ?? true);
-                                        setShowAxes(data.settings.showAxes ?? true);
-                                        setShowLabels(data.settings.showLabels ?? true);
-                                        setGridStepX(data.settings.gridStepX || "auto");
-                                        setGridStepY(data.settings.gridStepY || "auto");
-                                        setDarkMode(data.settings.darkMode || false);
-                                    }
-                                    showToast('تم تحميل المشروع بنجاح', 'success');
-                                } else {
-                                    showToast('نسخة الملف غير مدعومة', 'error');
-                                }
-                            } catch (err) {
-                                showToast('خطأ في تحميل الملف', 'error');
-                            }
-                        };
-                        reader.readAsText(file);
-                    }
-                }} />
+                <input type="file" accept=".geolab,.json" className="hidden" onChange={handleOpenFile} />
             </label>
         </div>
 
         {/* Save Options */}
         <div className="grid grid-cols-2 gap-3">
-            <button onClick={handleSaveToFile} className="gradient-primary text-white p-3 rounded-xl font-bold transition-all hover:scale-105 shadow-lg">💾 حفظ محلي</button>
-            <button onClick={async () => {
-                const token = prompt("أدخل رمز GitHub Token الخاص بك:");
-                if(!token) return showToast('تم إلغاء الحفظ', 'info');
-                showToast('جاري الحفظ عبر الإنترنت...', 'info');
-                // Implementation for GitHub Gist saving
-            }} className="gradient-success text-white p-3 rounded-xl font-bold transition-all hover:scale-105 shadow-lg">☁️ حفظ سحابي</button>
+            <button onClick={handleSaveToFile} className="p-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700">💾 حفظ</button>
+            <button onClick={exportImage} className="p-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700">📷 صورة</button>
         </div>
 
         {/* Add Elements */}
         <div className="grid grid-cols-3 gap-2">
-            <button onClick={() => setSliders([...sliders, { 
-                id: 's'+Date.now(), 
-                name: 'm', 
-                value: 1, 
-                min: -10, 
-                max: 10, 
-                step: 0.1, 
-                isAnimating: false, 
-                speed: 1, 
-                mode: 'forward', 
-                direction: 1,
-                sinusoidalOffset: 0 
-            }])} className="gradient-primary text-white p-2 rounded-lg text-xs font-bold transition-all hover:scale-105">+ منزلق</button>
-            
-            <button onClick={() => setFunctions([...functions, { 
-                id: 'f'+Date.now(), 
-                expression: "y = sin(x)", 
-                color: '#3b82f6', 
-                visible: true, 
-                thickness: 3, 
-                domainMin: '', 
-                domainMax: '', 
-                rangeMin: '', 
-                rangeMax: '',
-                fillOpacity: 0.3
-            }])} className="gradient-primary text-white p-2 rounded-lg text-xs font-bold transition-all hover:scale-105">+ دالة</button>
-            
-            <button onClick={() => setTables([...tables, { 
-                id: 't'+Date.now(), 
-                name: "جدول جديد", 
-                visible: true, 
-                color: '#f59e0b', 
-                pointShape: 'circle', 
-                points: [{ x: "0", y: "0" }], 
-                showLines: false,
-                lineType: 'solid'
-            }])} className="gradient-warning text-white p-2 rounded-lg text-xs font-bold transition-all hover:scale-105">+ جدول</button>
-            
-            <button onClick={() => setLabels([...labels, { 
-                id: 'l'+Date.now(), 
-                text: "نص جديد", 
-                x: "2", 
-                y: "2", 
-                color: '#059669', 
-                visible: true, 
-                showPoint: true, 
-                rotation: "0", 
-                fontSize: "14",
-                backgroundColor: 'transparent'
-            }])} className="gradient-success text-white p-2 rounded-lg text-xs font-bold transition-all hover:scale-105">+ نص</button>
-            
-            <label className="gradient-danger text-white p-2 rounded-lg text-xs font-bold text-center cursor-pointer transition-all hover:scale-105">
+            <button onClick={() => setSliders([...sliders, { id: 's'+Date.now(), name: 'm', value: 1, min: -10, max: 10, step: 0.1, isAnimating: false, speed: 1, mode: 'forward', direction: 1 }])} className="p-2 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-200">+ منزلق</button>
+            <button onClick={() => setFunctions([...functions, { id: 'f'+Date.now(), expression: "y = x", color: '#3b82f6', visible: true, thickness: 3, domainMin: '', domainMax: '', rangeMin: '', rangeMax: '', fillOpacity: 0.3 }])} className="p-2 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-200">+ دالة</button>
+            <button onClick={() => setTables([...tables, { id: 't'+Date.now(), name: "جدول جديد", visible: true, color: '#f59e0b', pointShape: 'circle', points: [{ x: "0", y: "0" }], showLines: false, lineType: 'solid' }])} className="p-2 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold hover:bg-amber-200">+ جدول</button>
+            <button onClick={() => setLabels([...labels, { id: 'l'+Date.now(), text: "نص جديد", x: "2", y: "2", color: '#059669', visible: true, showPoint: true, rotation: "0", fontSize: "14", backgroundColor: 'transparent' }])} className="p-2 bg-green-100 text-green-700 rounded-lg text-xs font-bold hover:bg-green-200">+ نص</button>
+            <label className="p-2 bg-red-100 text-red-700 rounded-lg text-xs font-bold text-center cursor-pointer hover:bg-red-200">
                 + صورة
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            const img = new Image();
-                            img.src = event.target.result;
-                            img.onload = () => {
-                                setImages([...images, { 
-                                    id: 'img' + Date.now(), 
-                                    element: img, 
-                                    x: "0", 
-                                    y: "0", 
-                                    width: "5", 
-                                    rotation: "0", 
-                                    opacity: "1", 
-                                    visible: true 
-                                }]);
-                                showToast('تم إضافة الصورة', 'success');
-                            };
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }} />
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
             </label>
         </div>
 
-        {/* Sliders Section */}
+        {/* Sliders */}
         {sliders.map(s => (
-            <EnhancedSlider
-                key={s.id}
-                slider={s}
-                onChange={(updated) => {
-                    setSliders(prev => prev.map(item => item.id === s.id ? updated : item));
-                    saveToHistory(`تعديل المنزلق ${s.name}`);
-                }}
-                onDelete={() => {
-                    setSliders(prev => prev.filter(item => item.id !== s.id));
-                    saveToHistory(`حذف المنزلق ${s.name}`);
-                }}
-            />
+            <div key={s.id} className="p-3 bg-white border rounded-xl space-y-2">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => setSliders(prev => prev.map(item => item.id === s.id ? {...item, isAnimating: !item.isAnimating} : item))} className={`w-6 h-6 rounded-full ${s.isAnimating ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                            {s.isAnimating ? '⏸️' : '▶️'}
+                        </button>
+                        <input type="text" className="w-8 border-none bg-transparent" value={s.name} onChange={e => setSliders(prev => prev.map(item => item.id === s.id ? {...item, name: e.target.value} : item))} />
+                    </div>
+                    <span className="font-bold">= {s.value}</span>
+                    <button onClick={() => setSliders(sliders.filter(x => x.id !== s.id))} className="text-red-400">🗑️</button>
+                </div>
+                <input type="range" min={s.min} max={s.max} step={s.step} value={s.value} onChange={e => setSliders(prev => prev.map(item => item.id === s.id ? {...item, value: parseFloat(e.target.value)} : item))} className="w-full" />
+                <div className="text-xs text-gray-500">
+                    <div>من {s.min} إلى {s.max}</div>
+                    <div>سرعة: {s.speed}x</div>
+                </div>
+            </div>
         ))}
 
-        {/* Functions Section */}
+        {/* Functions */}
         {functions.map(f => (
-          <div key={f.id} className={`p-4 rounded-2xl shadow-medium space-y-3 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-br from-white to-blue-50'}`}>
-            <div className="flex items-center gap-3">
-                <input 
-                    type="color" 
-                    value={f.color} 
-                    onChange={e => {
-                        setFunctions(prev => prev.map(item => item.id === f.id ? {...item, color: e.target.value} : item));
-                        saveToHistory(`تعديل لون الدالة`);
-                    }}
-                    className="w-8 h-8 border-none cursor-pointer rounded-lg"
-                />
-                <input 
-                    type="text" 
-                    className={`flex-1 p-2 rounded-lg font-mono text-sm ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100 text-gray-800'}`}
-                    style={{ direction: 'ltr' }}
-                    value={f.expression}
-                    onChange={e => {
-                        setFunctions(prev => prev.map(item => item.id === f.id ? {...item, expression: e.target.value} : item));
-                        saveToHistory(`تعديل الدالة`);
-                    }}
-                    placeholder="أدخل التعبير الرياضي..."
-                />
-                <button 
-                    onClick={() => {
-                        setFunctions(prev => prev.filter(item => item.id !== f.id));
-                        saveToHistory(`حذف الدالة`);
-                    }}
-                    className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'}`}
-                >
-                    🗑️
-                </button>
-            </div>
-            
-            {f.error && (
-                <div className="p-2 bg-red-100 text-red-700 rounded-lg text-xs">
-                    ⚠️ خطأ في التعبير: {f.errorMessage || 'تعبير غير صالح'}
-                </div>
-            )}
-            
-            <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                    <label className="block text-xs font-bold mb-1">الحد الأدنى للمجال</label>
-                    <input 
-                        type="text" 
-                        className={`w-full p-1.5 rounded-lg ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                        value={f.domainMin}
-                        onChange={e => setFunctions(prev => prev.map(item => item.id === f.id ? {...item, domainMin: e.target.value} : item))}
-                        placeholder="auto"
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-bold mb-1">الحد الأقصى للمجال</label>
-                    <input 
-                        type="text" 
-                        className={`w-full p-1.5 rounded-lg ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                        value={f.domainMax}
-                        onChange={e => setFunctions(prev => prev.map(item => item.id === f.id ? {...item, domainMax: e.target.value} : item))}
-                        placeholder="auto"
-                    />
-                </div>
-            </div>
-            
-            <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                    <label>سمك الخط:</label>
-                    <input 
-                        type="range" 
-                        min="1" 
-                        max="10" 
-                        value={f.thickness} 
-                        onChange={e => setFunctions(prev => prev.map(item => item.id === f.id ? {...item, thickness: parseInt(e.target.value)} : item))}
-                        className="w-20"
-                    />
-                    <span>{f.thickness}px</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <label>شفافية التعبئة:</label>
-                    <input 
-                        type="range" 
-                        min="0" 
-                        max="100" 
-                        value={f.fillOpacity * 100} 
-                        onChange={e => setFunctions(prev => prev.map(item => item.id === f.id ? {...item, fillOpacity: parseInt(e.target.value) / 100} : item))}
-                        className="w-20"
-                    />
-                    <span>{Math.round(f.fillOpacity * 100)}%</span>
-                </div>
+          <div key={f.id} className="p-3 bg-white border rounded-xl space-y-2">
+            <div className="flex gap-2 items-center">
+                <input type="color" value={f.color} onChange={e => setFunctions(prev => prev.map(item => item.id === f.id ? {...item, color: e.target.value} : item))} className="w-6 h-6 border-none cursor-pointer" />
+                <input type="text" className="flex-1 p-1 border rounded text-xs font-mono" style={{ direction: 'ltr' }} value={f.expression} onChange={e => setFunctions(prev => prev.map(item => item.id === f.id ? {...item, expression: e.target.value} : item))} />
+                <button onClick={() => setFunctions(functions.filter(x => x.id !== f.id))} className="text-red-400">🗑️</button>
             </div>
           </div>
         ))}
 
-        {/* Tables Section */}
+        {/* Tables */}
         {tables.map(t => (
-            <div key={t.id} className={`p-4 rounded-2xl shadow-medium space-y-3 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-br from-white to-amber-50'}`}>
-                <div className="flex justify-between items-center border-b pb-2">
-                    <div className="flex items-center gap-3">
-                        <input 
-                            type="color" 
-                            value={t.color} 
-                            onChange={e => setTables(prev => prev.map(item => item.id === t.id ? {...item, color: e.target.value} : item))}
-                            className="w-6 h-6 border-none cursor-pointer rounded"
-                        />
-                        <input 
-                            type="text" 
-                            className={`text-sm font-bold bg-transparent ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}
-                            value={t.name}
-                            onChange={e => setTables(prev => prev.map(item => item.id === t.id ? {...item, name: e.target.value} : item))}
-                        />
-                    </div>
-                    <button 
-                        onClick={() => {
-                            setTables(prev => prev.filter(item => item.id !== t.id));
-                            saveToHistory(`حذف الجدول ${t.name}`);
-                        }}
-                        className={`p-1.5 rounded-lg ${darkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'}`}
-                    >
-                        🗑️
-                    </button>
+          <div key={t.id} className="p-3 bg-white border rounded-xl space-y-2">
+            <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                    <input type="color" value={t.color} onChange={e => setTables(prev => prev.map(item => item.id === t.id ? {...item, color: e.target.value} : item))} className="w-4 h-4 border-none" />
+                    <input type="text" className="w-24 bg-transparent" value={t.name} onChange={e => setTables(prev => prev.map(item => item.id === t.id ? {...item, name: e.target.value} : item))} />
                 </div>
-                
-                <div className="flex items-center justify-between text-xs mb-2">
-                    <div className="flex items-center gap-3">
-                        <div>
-                            <label className="block text-xs font-bold mb-1">شكل النقطة</label>
-                            <select 
-                                value={t.pointShape} 
-                                onChange={e => setTables(prev => prev.map(item => item.id === t.id ? {...item, pointShape: e.target.value} : item))}
-                                className={`p-1.5 rounded-lg text-xs ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                            >
-                                <option value="circle">● دائرة</option>
-                                <option value="square">■ مربع</option>
-                                <option value="triangle">▲ مثلث</option>
-                                <option value="diamond">◆ معين</option>
-                                <option value="star">★ نجمة</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label className="block text-xs font-bold mb-1">نوع الخط</label>
-                            <select 
-                                value={t.lineType} 
-                                onChange={e => setTables(prev => prev.map(item => item.id === t.id ? {...item, lineType: e.target.value} : item))}
-                                className={`p-1.5 rounded-lg text-xs ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                            >
-                                <option value="solid">━━━ خط متصل</option>
-                                <option value="dashed">╍╍╍ خط متقطع</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                        <label className="text-xs font-bold">ربط النقاط:</label>
-                        <input 
-                            type="checkbox" 
-                            checked={t.showLines}
-                            onChange={e => setTables(prev => prev.map(item => item.id === t.id ? {...item, showLines: e.target.checked} : item))}
-                            className="w-4 h-4"
-                        />
-                    </div>
-                </div>
-                
-                <div className="overflow-x-auto">
-                    <table className="w-full text-center text-xs">
-                        <thead>
-                            <tr className={`${darkMode ? 'bg-gray-600' : 'bg-gray-100'}`}>
-                                <th className="p-2 rounded-r-lg">X</th>
-                                <th className="p-2">Y</th>
-                                <th className="p-2 rounded-l-lg"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {t.points.map((p, idx) => (
-                                <tr key={idx} className={`${darkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-50'}`}>
-                                    <td className="p-1.5">
-                                        <input 
-                                            type="text" 
-                                            className={`w-full p-1.5 rounded text-center ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-gray-100'}`}
-                                            value={p.x}
-                                            onChange={e => setTables(prev => prev.map(tab => tab.id === t.id ? {
-                                                ...tab, 
-                                                points: tab.points.map((pt, i) => i === idx ? {...pt, x: e.target.value} : pt)
-                                            } : tab))}
-                                        />
-                                    </td>
-                                    <td className="p-1.5">
-                                        <input 
-                                            type="text" 
-                                            className={`w-full p-1.5 rounded text-center ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-gray-100'}`}
-                                            value={p.y}
-                                            onChange={e => setTables(prev => prev.map(tab => tab.id === t.id ? {
-                                                ...tab, 
-                                                points: tab.points.map((pt, i) => i === idx ? {...pt, y: e.target.value} : pt)
-                                            } : tab))}
-                                        />
-                                    </td>
-                                    <td className="p-1.5">
-                                        <button 
-                                            onClick={() => setTables(prev => prev.map(tab => tab.id === t.id ? {
-                                                ...tab, 
-                                                points: tab.points.filter((_, i) => i !== idx)
-                                            } : tab))}
-                                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        >
-                                            ✕
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                
-                <button 
-                    onClick={() => setTables(prev => prev.map(tab => tab.id === t.id ? {
-                        ...tab, 
-                        points: [...tab.points, {x: "0", y: "0"}]
-                    } : tab))}
-                    className={`w-full py-2 text-xs font-bold rounded-lg transition-all hover:scale-105 ${darkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-gray-100 hover:bg-gray-200'}`}
-                >
-                    + إضافة نقطة جديدة
-                </button>
+                <button onClick={() => setTables(tables.filter(x => x.id !== t.id))} className="text-red-400">🗑️</button>
             </div>
+            <table className="w-full text-center text-xs">
+              <thead><tr><th>X</th><th>Y</th><th></th></tr></thead>
+              <tbody>{t.points.map((p, idx) => (
+                <tr key={idx}>
+                  <td><input type="text" className="w-full p-1 border-none text-center bg-gray-50" value={p.x} onChange={e => setTables(prev => prev.map(tab => tab.id === t.id ? {...tab, points: tab.points.map((pt, i) => i === idx ? {...pt, x: e.target.value} : pt)} : tab))} /></td>
+                  <td><input type="text" className="w-full p-1 border-none text-center bg-gray-50" value={p.y} onChange={e => setTables(prev => prev.map(tab => tab.id === t.id ? {...tab, points: tab.points.map((pt, i) => i === idx ? {...pt, y: e.target.value} : pt)} : tab))} /></td>
+                  <td><button className="text-red-400" onClick={() => setTables(prev => prev.map(tab => tab.id === t.id ? {...tab, points: tab.points.filter((_, i) => i !== idx)} : tab))}>✕</button></td>
+                </tr>
+              ))}</tbody>
+            </table>
+            <button className="w-full py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded" onClick={() => setTables(prev => prev.map(tab => tab.id === t.id ? {...tab, points: [...tab.points, {x:"0", y:"0"}]} : tab))}>+ صف</button>
+          </div>
         ))}
 
-        {/* Labels Section */}
+        {/* Labels */}
         {labels.map(lbl => (
-            <div key={lbl.id} className={`p-4 rounded-2xl shadow-medium space-y-3 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-br from-white to-emerald-50'}`}>
-                <div className="flex justify-between items-center border-b pb-2">
-                    <div className="flex items-center gap-3">
-                        <input 
-                            type="color" 
-                            value={lbl.color} 
-                            onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, color: e.target.value} : item))}
-                            className="w-6 h-6 border-none cursor-pointer rounded"
-                        />
-                        <span className="text-sm font-bold">📝 تحكم بالنص</span>
-                    </div>
-                    <button 
-                        onClick={() => {
-                            setLabels(prev => prev.filter(item => item.id !== lbl.id));
-                            saveToHistory(`حذف النص`);
-                        }}
-                        className={`p-1.5 rounded-lg ${darkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'}`}
-                    >
-                        🗑️
-                    </button>
-                </div>
-                
-                <input 
-                    type="text" 
-                    className={`w-full p-3 rounded-lg text-sm ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100 text-gray-800'}`}
-                    value={lbl.text}
-                    onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, text: e.target.value} : item))}
-                    placeholder="أدخل النص هنا..."
-                />
-                
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label className="block text-xs font-bold mb-1">الإحداثي X</label>
-                        <input 
-                            type="text" 
-                            className={`w-full p-2 rounded-lg text-center ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                            value={lbl.x}
-                            onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, x: e.target.value} : item))}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold mb-1">الإحداثي Y</label>
-                        <input 
-                            type="text" 
-                            className={`w-full p-2 rounded-lg text-center ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                            value={lbl.y}
-                            onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, y: e.target.value} : item))}
-                        />
-                    </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label className="block text-xs font-bold mb-1">حجم الخط</label>
-                        <input 
-                            type="range" 
-                            min="8" 
-                            max="72" 
-                            value={lbl.fontSize} 
-                            onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, fontSize: e.target.value} : item))}
-                            className="w-full"
-                        />
-                        <div className="text-center text-xs mt-1">{lbl.fontSize}px</div>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold mb-1">الدوران</label>
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="360" 
-                            value={lbl.rotation} 
-                            onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, rotation: e.target.value} : item))}
-                            className="w-full"
-                        />
-                        <div className="text-center text-xs mt-1">{lbl.rotation}°</div>
-                    </div>
-                </div>
-                
-                <div className="flex items-center justify-between text-xs">
+            <div key={lbl.id} className="p-3 bg-white border rounded-xl space-y-2">
+                <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <label>لون الخلفية:</label>
-                        <input 
-                            type="color" 
-                            value={lbl.backgroundColor} 
-                            onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, backgroundColor: e.target.value} : item))}
-                            className="w-6 h-6 border-none cursor-pointer rounded"
-                        />
+                        <input type="color" value={lbl.color} onChange={e => setLabels(prev => prev.map(l => l.id === lbl.id ? {...l, color: e.target.value} : l))} className="w-4 h-4 border-none" />
+                        <span className="text-xs font-bold">نص</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <label>إظهار النقطة:</label>
-                        <input 
-                            type="checkbox" 
-                            checked={lbl.showPoint}
-                            onChange={e => setLabels(prev => prev.map(item => item.id === lbl.id ? {...item, showPoint: e.target.checked} : item))}
-                            className="w-4 h-4"
-                        />
-                    </div>
+                    <button onClick={() => setLabels(labels.filter(x => x.id !== lbl.id))} className="text-red-400">🗑️</button>
                 </div>
-            </div>
-        ))}
-
-        {/* Images Section */}
-        {images.map(img => (
-            <div key={img.id} className={`p-4 rounded-2xl shadow-medium space-y-3 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-br from-white to-rose-50'}`}>
-                <div className="flex justify-between items-center border-b pb-2">
-                    <span className="text-sm font-bold flex items-center gap-2">
-                        🖼️ تحكم بالصورة
-                    </span>
-                    <button 
-                        onClick={() => {
-                            setImages(prev => prev.filter(item => item.id !== img.id));
-                            saveToHistory(`حذف الصورة`);
-                        }}
-                        className={`p-1.5 rounded-lg ${darkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100'}`}
-                    >
-                        🗑️
-                    </button>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label className="block text-xs font-bold mb-1">الإحداثي X</label>
-                        <input 
-                            type="text" 
-                            className={`w-full p-2 rounded-lg text-center ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                            value={img.x}
-                            onChange={e => setImages(prev => prev.map(item => item.id === img.id ? {...item, x: e.target.value} : item))}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold mb-1">الإحداثي Y</label>
-                        <input 
-                            type="text" 
-                            className={`w-full p-2 rounded-lg text-center ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                            value={img.y}
-                            onChange={e => setImages(prev => prev.map(item => item.id === img.id ? {...item, y: e.target.value} : item))}
-                        />
-                    </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label className="block text-xs font-bold mb-1">العرض</label>
-                        <input 
-                            type="text" 
-                            className={`w-full p-2 rounded-lg text-center ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                            value={img.width}
-                            onChange={e => setImages(prev => prev.map(item => item.id === img.id ? {...item, width: e.target.value} : item))}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold mb-1">الشفافية</label>
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            value={parseFloat(img.opacity) * 100} 
-                            onChange={e => setImages(prev => prev.map(item => item.id === img.id ? {...item, opacity: (parseFloat(e.target.value) / 100).toString()} : item))}
-                            className="w-full"
-                        />
-                        <div className="text-center text-xs mt-1">{Math.round(parseFloat(img.opacity) * 100)}%</div>
-                    </div>
-                </div>
-                
-                <div>
-                    <label className="block text-xs font-bold mb-1">الدوران</label>
-                    <input 
-                        type="range" 
-                        min="0" 
-                        max="360" 
-                        value={img.rotation} 
-                        onChange={e => setImages(prev => prev.map(item => item.id === img.id ? {...item, rotation: e.target.value} : item))}
-                        className="w-full"
-                    />
-                    <div className="text-center text-xs mt-1">{img.rotation}°</div>
+                <input type="text" className="w-full p-1 border rounded text-xs" value={lbl.text} onChange={e => setLabels(prev => prev.map(l => l.id === lbl.id ? {...l, text: e.target.value} : l))} />
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div><label>X:</label><input type="text" className="w-full p-1 border rounded text-center" value={lbl.x} onChange={e => setLabels(prev => prev.map(l => l.id === lbl.id ? {...l, x: e.target.value} : l))} /></div>
+                    <div><label>Y:</label><input type="text" className="w-full p-1 border rounded text-center" value={lbl.y} onChange={e => setLabels(prev => prev.map(l => l.id === lbl.id ? {...l, y: e.target.value} : l))} /></div>
                 </div>
             </div>
         ))}
 
         {/* Footer Section */}
-        <div className="mt-auto pt-4 border-t border-slate-200 space-y-4">
+        <div className="mt-auto pt-4 border-t border-gray-200 space-y-4">
             {/* Embed Code */}
-            <div className={`p-4 rounded-2xl shadow-medium space-y-3 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-br from-indigo-50 to-purple-50'}`}>
-                <label className="text-sm font-bold text-indigo-700 flex items-center gap-2">
-                    <span>📋 كود التضمين الذكي</span>
-                    <button 
-                        onClick={() => {
-                            navigator.clipboard.writeText(autoEmbedIframe);
-                            showToast('تم نسخ كود التضمين', 'success');
-                        }}
-                        className="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200"
-                    >
-                        نسخ
-                    </button>
-                </label>
+            <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-lg space-y-2">
+                <label className="text-xs font-bold text-indigo-700">كود التضمين:</label>
                 <textarea 
-                    readOnly 
-                    className={`w-full p-3 text-xs font-mono rounded-lg resize-none ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-800'}`}
-                    rows="4" 
-                    value={autoEmbedIframe} 
-                    onClick={(e) => e.target.select()}
+                  readOnly 
+                  className="w-full p-2 text-xs font-mono border rounded bg-white" 
+                  rows="3" 
+                  value={iframeCode} 
+                  onClick={(e) => e.target.select()}
                 />
-                <p className="text-xs text-slate-500">* يتم تحديث الكود تلقائياً عند أي تغيير في الرسم البياني.</p>
-            </div>
-
-            {/* Export Image */}
-            <button 
-                onClick={() => {
-                    const canvas = canvasRef.current;
-                    if (canvas) {
-                        const link = document.createElement('a');
-                        link.download = `${graphTitle.replace(/\s+/g, '_')}_${Date.now()}.png`;
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                        showToast('تم تصدير الصورة', 'success');
-                    }
-                }}
-                className="w-full py-3 gradient-success text-white rounded-xl font-bold transition-all hover:scale-105 shadow-lg flex items-center justify-center gap-2"
-            >
-                📷 تصدير كصورة PNG
-            </button>
-
-            {/* Grid Controls */}
-            <div className={`grid grid-cols-2 gap-3 p-4 rounded-2xl shadow-medium ${darkMode ? 'bg-gray-700' : 'bg-white'}`}>
-                <div>
-                    <label className="block text-xs font-bold mb-2">تباعد الشبكة - X</label>
-                    <select 
-                        value={gridStepX} 
-                        onChange={e => setGridStepX(e.target.value)}
-                        className={`w-full p-2 rounded-lg text-sm ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                    >
-                        {gridOptions.map(opt => (
-                            <option key={opt} value={opt}>{opt === 'pi' ? 'π' : opt === 'π/2' ? 'π/2' : opt === 'π/4' ? 'π/4' : opt}</option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-xs font-bold mb-2">تباعد الشبكة - Y</label>
-                    <select 
-                        value={gridStepY} 
-                        onChange={e => setGridStepY(e.target.value)}
-                        className={`w-full p-2 rounded-lg text-sm ${darkMode ? 'bg-gray-600 text-gray-100' : 'bg-gray-100'}`}
-                    >
-                        {gridOptions.map(opt => (
-                            <option key={opt} value={opt}>{opt === 'pi' ? 'π' : opt === 'π/2' ? 'π/2' : opt === 'π/4' ? 'π/4' : opt}</option>
-                        ))}
-                    </select>
-                </div>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(iframeCode);
+                    showToast('تم نسخ كود التضمين', 'success');
+                  }}
+                  className="w-full py-2 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-700"
+                >
+                  نسخ الكود
+                </button>
             </div>
 
             {/* Display Settings */}
-            <div className={`space-y-3 p-4 rounded-2xl shadow-medium ${darkMode ? 'bg-gray-700' : 'bg-white'}`}>
-                <div className="text-xs font-bold text-slate-600 mb-2">إعدادات العرض</div>
-                <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm">إظهار المحاور</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                checked={showAxes} 
-                                onChange={e => setShowAxes(e.target.checked)}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm">إظهار الشبكة</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                checked={showGrid} 
-                                onChange={e => setShowGrid(e.target.checked)}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-sm">إظهار الأرقام</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                checked={showLabels} 
-                                onChange={e => setShowLabels(e.target.checked)}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                    </div>
+            <div className="space-y-2 p-3 bg-white border rounded">
+                <div className="text-xs font-bold text-gray-600">إعدادات العرض</div>
+                <div className="space-y-1 text-xs">
+                    <div className="flex justify-between"><span>المحاور</span><input type="checkbox" checked={showAxes} onChange={e => setShowAxes(e.target.checked)} /></div>
+                    <div className="flex justify-between"><span>الشبكة</span><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /></div>
+                    <div className="flex justify-between"><span>الأرقام</span><input type="checkbox" checked={showLabels} onChange={e => setShowLabels(e.target.checked)} /></div>
                 </div>
             </div>
 
-            {/* Clear Data */}
-            <button 
-                onClick={() => {
-                    if (window.confirm('هل أنت متأكد من مسح كافة البيانات المحفوظة؟')) {
-                        localStorage.clear();
-                        window.location.reload();
-                        showToast('تم مسح كافة البيانات', 'success');
-                    }
-                }}
-                className="w-full py-3 gradient-danger text-white rounded-xl font-bold transition-all hover:scale-105 shadow-lg"
-            >
-                🗑️ مسح كافة البيانات المحفوظة
-            </button>
-
-            {/* Version Info */}
-            <div className="text-center text-xs text-slate-500 pt-2">
-                موقع التكامل المتقدم v2.0 • تم التطوير بواسطة تقنيات الويب الحديثة
+            {/* Grid Settings */}
+            <div className="grid grid-cols-2 gap-2 bg-white p-3 rounded border">
+                <div><label className="text-xs font-bold">شبكة X:</label><select value={gridStepX} onChange={e => setGridStepX(e.target.value)} className="w-full p-1 border rounded text-xs">{gridOptions.map(opt => <option key={opt} value={opt}>{opt === 'pi' ? 'π' : opt}</option>)}</select></div>
+                <div><label className="text-xs font-bold">شبكة Y:</label><select value={gridStepY} onChange={e => setGridStepY(e.target.value)} className="w-full p-1 border rounded text-xs">{gridOptions.map(opt => <option key={opt} value={opt}>{opt === 'pi' ? 'π' : opt}</option>)}</select></div>
             </div>
+
+            {/* Clear Data */}
+            <button onClick={() => {localStorage.clear(); window.location.reload();}} className="w-full py-2 bg-red-50 text-red-600 rounded text-xs font-bold hover:bg-red-100">
+                مسح كافة البيانات المحفوظة
+            </button>
         </div>
       </div>
 
@@ -1741,7 +809,6 @@ const App = () => {
             onPointerDown={(e) => {
                 setIsDragging(true);
                 dragStart.current = { x: e.clientX - offset.x, y: e.clientY - offset.y };
-                e.currentTarget.setPointerCapture(e.pointerId);
             }}
             onPointerMove={(e) => {
                 if (isDragging) {
@@ -1751,38 +818,23 @@ const App = () => {
                     });
                 }
             }}
-            onPointerUp={(e) => {
-                setIsDragging(false);
-                e.currentTarget.releasePointerCapture(e.pointerId);
-            }}
+            onPointerUp={() => setIsDragging(false)}
             onWheel={(e) => {
-                e.preventDefault();
-                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-                setZoom(z => Math.min(config.maxZoom, Math.max(config.minZoom, z * zoomFactor)));
+                setZoom(z => Math.min(config.maxZoom, Math.max(config.minZoom, z + (e.deltaY > 0 ? -z*0.1 : z*0.1))));
             }}
             className={`w-full h-full ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         />
         
-        {/* Graph Title Editor */}
+        {/* Title Editor */}
         {!isEmbedMode && (
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30">
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
                 <input 
                     type="text" 
-                    className={`text-center p-3 rounded-xl font-bold text-lg shadow-lg ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-800'}`}
+                    className="text-center p-2 rounded font-bold text-lg bg-white/80 backdrop-blur-sm border"
                     value={graphTitle}
                     onChange={e => setGraphTitle(e.target.value)}
-                    style={{ width: '400px' }}
-                    placeholder="أدخل عنوان الرسم البياني..."
+                    style={{ width: '300px' }}
                 />
-            </div>
-        )}
-
-        {/* Current Coordinates Display */}
-        {!isEmbedMode && (
-            <div className={`absolute bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-800'}`}>
-                <div className="text-xs font-mono">
-                    التكبير: {zoom.toFixed(1)}x • الإزاحة: ({offset.x.toFixed(0)}, {offset.y.toFixed(0)})
-                </div>
             </div>
         )}
       </div>
